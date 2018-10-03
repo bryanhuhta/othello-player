@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OthelloPlayer.Startup
+﻿namespace OthelloPlayer.Startup
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        private static readonly log4net.ILog Logger =
+            log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        public static void Main(string[] args)
         {
+            log4net.Config.XmlConfigurator.Configure();
         }
     }
 }
