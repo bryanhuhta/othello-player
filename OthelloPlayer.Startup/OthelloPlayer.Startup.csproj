@@ -48,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Game\Gameboard.cs" />
+    <Compile Include="Game\GameboardManager.cs" />
+    <Compile Include="Game\Token.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
