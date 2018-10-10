@@ -1,6 +1,7 @@
 ﻿using OthelloPlayer.Startup.Game;
 using OthelloPlayer.Startup.Game.Display;
 using System;
+using System.Collections.Generic;
 
 namespace OthelloPlayer.Startup
 {
@@ -15,24 +16,20 @@ namespace OthelloPlayer.Startup
 
             try
             {
-                var count = 0;
+                var possibleMoves = new Dictionary<char, OrderedPair>();
 
                 var manager = new GameboardManager(8);
 
-                Console.WriteLine(BoardDisplay.DrawBoard(manager, Token.Black, out count));
-                Console.WriteLine($"count: {count}");
-                
+                Console.WriteLine(BoardDisplay.DrawBoard(manager, Token.Black, out possibleMoves));
+
+                var move = GetMove(possibleMoves);
+
+                manager[move] = Token.Black;
+
+                Console.WriteLine(BoardDisplay.DrawBoard(manager, Token.White, out possibleMoves));
+
                 // Game loop.
-                //while (!manager.Finish)
-                {
-                    // Draw board
 
-                    // Player 1 move
-
-                    // Draw board
-
-                    // Player 2 move
-                }
             }
             catch (Exception e)
             {
@@ -41,6 +38,25 @@ namespace OthelloPlayer.Startup
 
             Console.WriteLine("Press any key...");
             Console.ReadKey();
+        }
+
+        private static OrderedPair GetMove(Dictionary<char, OrderedPair> pairs)
+        {
+            Console.WriteLine("Enter a move:");
+            
+            while (true)
+            {
+                var input = Console.ReadKey().KeyChar;
+                
+                if (!pairs.ContainsKey(input))
+                {
+                    Console.WriteLine($"{input} is not valid. Enter a new move:");
+                }
+                else
+                {
+                    return pairs[input];
+                }
+            }
         }
     }
 }

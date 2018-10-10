@@ -14,13 +14,14 @@ namespace OthelloPlayer.Startup.Game.Display
 
         #region Public Methods
 
-        public static string DrawBoard(GameboardManager manager, Token nextToken, out int count)
+        public static string DrawBoard(GameboardManager manager, Token nextToken, out Dictionary<char, OrderedPair> letteredMoves)
         {
             var builder = new StringBuilder();
             char piece = ' ';
 
             var counter = 0;
             var validMoves = new List<OrderedPair>();
+            letteredMoves = new Dictionary<char, OrderedPair>();
 
             if (nextToken == Token.Black)
             {
@@ -39,13 +40,16 @@ namespace OthelloPlayer.Startup.Game.Display
 
                 for (var x = 0; x < manager.Size; ++x)
                 {
-                    var token = manager[new OrderedPair(x, y)];
+                    var currentPosition = new OrderedPair(x, y);
+                    var token = manager[currentPosition];
 
                     if (token == Token.Open)
                     {
-                        if (GameboardManager.HasOrderedPair(validMoves, new OrderedPair(x, y)))
+                        if (GameboardManager.HasOrderedPair(validMoves, currentPosition))
                         {
-                            piece = Moves[counter++];
+                            piece = Moves[counter];
+                            letteredMoves.Add(Moves[counter], currentPosition);
+                            ++counter;
                         }
                         else
                         {
@@ -69,27 +73,10 @@ namespace OthelloPlayer.Startup.Game.Display
             }
 
             builder.Append(DrawRowDivider(manager.Size));
-
-            count = counter;
+            
             return builder.ToString();
         }
-
-
-        //
-        // -------------
-        // | a | B | W |
-        // -------------
-        // | B |   | W |
-        // -------------
-        // | B |   | W |
-        // -------------
-
-        //
-        // | B |   | W |\n
-        //
-        // -------------\n
-        //
-
+        
         #endregion
 
         #region Private Methods
