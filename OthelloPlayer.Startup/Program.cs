@@ -15,9 +15,12 @@ namespace OthelloPlayer.Startup
 
             try
             {
+                var count = 0;
+
                 var manager = new GameboardManager(8);
 
-                Console.WriteLine(BoardDisplay.DrawBoard(manager, Token.Black));
+                Console.WriteLine(BoardDisplay.DrawBoard(manager, Token.Black, out count));
+                Console.WriteLine($"count: {count}");
                 
                 // Game loop.
                 //while (!manager.Finish)

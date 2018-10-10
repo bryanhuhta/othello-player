@@ -14,7 +14,7 @@ namespace OthelloPlayer.Startup.Game.Display
 
         #region Public Methods
 
-        public static string DrawBoard(GameboardManager manager, Token nextToken)
+        public static string DrawBoard(GameboardManager manager, Token nextToken, out int count)
         {
             var builder = new StringBuilder();
             char piece = ' ';
@@ -70,6 +70,7 @@ namespace OthelloPlayer.Startup.Game.Display
 
             builder.Append(DrawRowDivider(manager.Size));
 
+            count = counter;
             return builder.ToString();
         }
 
