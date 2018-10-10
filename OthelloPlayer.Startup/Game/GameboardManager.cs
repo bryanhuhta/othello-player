@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using static OthelloPlayer.Startup.Game.OrderedPair;
 
 namespace OthelloPlayer.Startup.Game
 {
@@ -14,6 +15,8 @@ namespace OthelloPlayer.Startup.Game
         #region Properties
 
         public int Size => _gameboard.Board.GetLength(0);
+        public List<OrderedPair> ValidWhiteMoves { get; private set; }
+        public List<OrderedPair> ValidBlackMoves { get; private set; }
         
         #endregion
 
@@ -32,48 +35,37 @@ namespace OthelloPlayer.Startup.Game
             }
 
             _gameboard = InitGameboard(size);
+
+            ValidBlackMoves = BuildPossibleMovesList(Token.Black);
+            ValidWhiteMoves = BuildPossibleMovesList(Token.White);
         }
 
         #endregion
 
         #region Public Methods
         
-        public Token this[int x, int y]
+        public Token this[OrderedPair orderedPair]
         {
             get
             {
                 // Validate position bounds.
-                if (x < Gameboard.MinimumSize - 1 || x > Size - 1)
+                if (!_gameboard.IsValidPosition(orderedPair))
                 {
                     throw new ArgumentOutOfRangeException(
-                        $"{nameof(x)} is {x}, but must be between {Gameboard.MinimumSize - 1} and {Size - 1}.");
+                        $"{nameof(orderedPair)} is {orderedPair}, but must be between {Gameboard.MinimumSize - 1} and {Size - 1}.");
                 }
 
-                // Validate position bounds.
-                if (y < Gameboard.MinimumSize - 1 || y > Size - 1)
-                {
-                    throw new ArgumentOutOfRangeException(
-                        $"{nameof(x)} is {x}, but must be between {Gameboard.MinimumSize - 1} and {Size - 1}.");
-                }
-
-                return _gameboard.Board[x, y];
+                return _gameboard[orderedPair];
             }
 
             // TODO: Implement rules on where valid positions are.
             set
             {
                 // Validate position bounds.
-                if (x < Gameboard.MinimumSize - 1 || x > Size - 1)
+                if (!_gameboard.IsValidPosition(orderedPair))
                 {
                     throw new ArgumentOutOfRangeException(
-                        $"{nameof(x)} is {x}, but must be between {Gameboard.MinimumSize - 1} and {Size - 1}.");
-                }
-
-                // Validate position bounds.
-                if (y < Gameboard.MinimumSize - 1 || y > Size - 1)
-                {
-                    throw new ArgumentOutOfRangeException(
-                        $"{nameof(x)} is {x}, but must be between {Gameboard.MinimumSize - 1} and {Size - 1}.");
+                        $"{nameof(orderedPair)} is {orderedPair}, but must be between {Gameboard.MinimumSize - 1} and {Size - 1}.");
                 }
 
                 // Make sure either Black or White is trying to be placed.
@@ -82,25 +74,33 @@ namespace OthelloPlayer.Startup.Game
                     throw new ArgumentException($"Cannot place {value}, must use {Token.White} or {Token.Black}.");
                 }
 
-                // Make sure this position is open.
-                if (_gameboard.Board[x, y] != Token.Open)
+                // Make sure this position is open. !!Is this needed?
+                if (_gameboard[orderedPair] != Token.Open)
                 {
                     throw new ArgumentException(
-                        $"Position ({x}, {y}) already has value {_gameboard.Board[x, y]}. Value of {Token.Open} is required.");
+                        $"Position {orderedPair} already has value {_gameboard[orderedPair]}. Value of {Token.Open} is required.");
                 }
 
-                // loop everything
-                //  -> IsValid(x, y)
+                // Check if this is a valid move.
+                if (value == Token.Black && !ValidBlackMoves.Contains(orderedPair))
+                {
+                    // throw exception
+                }
 
-                // Place token.
-                _gameboard.Board[x, y] = value;
+                // 1. Place token.
+
+                // 2. Capture pieces.
+
+                // Re-build 'moves' lists.
+                ValidBlackMoves = BuildPossibleMovesList(Token.Black);
+                ValidWhiteMoves = BuildPossibleMovesList(Token.White);
             }
         }
 
         #endregion
 
-        #region Private Methods
-        
+            #region Private Methods
+
         private static Gameboard InitGameboard(int size)
         {
             var gameboard = new Gameboard(size);
@@ -115,68 +115,83 @@ namespace OthelloPlayer.Startup.Game
             return gameboard;
         }
         
-        private static bool IsValid(int x, int y, Token currentToken)
+        private static bool IsValid(OrderedPair orderedPair, Token currentToken)
         {
             if (currentToken == Token.Open)
             {
                 throw new ArgumentException($"Cannot place {currentToken}, must use {Token.White} or {Token.Black}.");
             }
             
-            if (_gameboard.Board[x, y] != Token.Open)
+            foreach (Direction direction in Enum.GetValues(typeof(Direction)))
             {
-                return false;
+                var newOrderedPair = orderedPair + direction;
+
+                if (_gameboard[newOrderedPair] == Token.Open)
+                {
+                    // Go to next direction. (Open token)
+                    continue;
+                }
+
+                if (_gameboard[newOrderedPair] == currentToken)
+                {
+                    // Go to next direction. (Same token)
+                    continue;
+                }
+
+                if (Search(newOrderedPair, direction, currentToken))
+                {
+                    // There exists a move that can capture opponent pieces.
+                    return true;
+                }
             }
-            
-            foreach (var direction in Directions.CardinalDirections)
-            {
-                var newX = direction.Value.Item1;
-                var newY = direction.Value.Item2;
 
-                if (newX < Gameboard.MinimumSize - 1 || newX > _gameboard.Board.GetLength(0) - 1)
-                {
-                    // Skip this direction. (Out of bounds)
-                    continue;
-                }
-
-                if (newY < Gameboard.MinimumSize - 1 || newY > _gameboard.Board.GetLength(1) - 1)
-                {
-                    // Skip this direction. (Out of bounds)
-                    continue;
-                }
-
-                if (_gameboard.Board[newX, newY] == Token.Open || _gameboard.Board[newX, newY] == currentToken)
-                {
-                    // Skip this direction. (Spot is open or has same token)
-                    continue;
-                }
-
-                // search down direction
-            }
+            // No valid moves from this position.
+            return false;
         }
 
-        public static bool Search(int x, int y, KeyValuePair<string, Tuple<int, int>> direction, Token currentToken)
+        private static bool Search(OrderedPair orderedPair, Direction direction, Token currentToken)
         {
-            if (x < Gameboard.MinimumSize - 1 || x > _gameboard.Board.GetLength(0) - 1)
+            if (!_gameboard.IsValidPosition(orderedPair))
             {
                 return false;
             }
 
-            if (y < Gameboard.MinimumSize - 1 || y > _gameboard.Board.GetLength(1) - 1)
+            if (_gameboard[orderedPair] == Token.Open)
             {
                 return false;
             }
 
-            if (_gameboard.Board[x, y] == Token.Open)
-            {
-                return false;
-            }
-
-            if (_gameboard.Board[x, y] == currentToken)
+            if (_gameboard[orderedPair] == currentToken)
             {
                 return true;
             }
+            
+            return Search(orderedPair + direction, direction, currentToken);
+        }
 
-            return Search(x + direction.Value.Item1, y + direction.Value.Item2, direction, currentToken);
+        private static List<OrderedPair> BuildPossibleMovesList(Token token)
+        {
+            if (token == Token.Open)
+            {
+                throw new ArgumentException($"Cannot place {token}, must use {Token.White} or {Token.Black}.");
+            }
+
+            var movesList = new List<OrderedPair>();
+            
+            for (var x = 0; x < _gameboard.Board.GetLength(0); ++x)
+            {
+                for (var y = 0; y < _gameboard.Board.GetLength(1); ++y)
+                {
+                    var orderPair = new OrderedPair(x , y);
+
+                    if (IsValid(orderPair, token))
+                    {
+                        movesList.Add(orderPair);
+                    }
+                }
+            }
+
+            return movesList;
         }
 
         #endregion

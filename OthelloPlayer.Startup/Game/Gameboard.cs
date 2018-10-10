@@ -41,7 +41,43 @@ namespace OthelloPlayer.Startup.Game
         }
 
         #endregion
-        
+
+        #region Public Methods
+
+        public bool IsValidPosition(OrderedPair orderedPair)
+        {
+            return (orderedPair.X >= MinimumSize - 1 && orderedPair.X <= Board.GetLength(0) - 1)
+                && (orderedPair.Y >= MinimumSize - 1 && orderedPair.Y <= Board.GetLength(1) - 1);
+        }
+
+        public Token this[int x, int y]
+        {
+            get
+            {
+                return Board[x, y];
+            }
+
+            set
+            {
+                Board[x, y] = value;
+            }
+        }
+
+        public Token this[OrderedPair orderedPair]
+        {
+            get
+            {
+                return Board[orderedPair.X, orderedPair.Y];
+            }
+
+            set
+            {
+                Board[orderedPair.X, orderedPair.Y] = value;
+            }
+        }
+
+        #endregion
+
         #region Private Methods
 
         private static Token[,] InitBoard(int size)

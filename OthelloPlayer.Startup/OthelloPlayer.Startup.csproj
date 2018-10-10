@@ -50,6 +50,7 @@
     <Compile Include="Game\Directions.cs" />
     <Compile Include="Game\Gameboard.cs" />
     <Compile Include="Game\GameboardManager.cs" />
+    <Compile Include="Game\OrderedPair.cs" />
     <Compile Include="Game\Token.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace OthelloPlayer.Startup.Game
 {
@@ -7,16 +6,16 @@ namespace OthelloPlayer.Startup.Game
     {
         #region Properties
 
-        public static readonly Dictionary<string, Tuple<int, int>> CardinalDirections = new Dictionary<string, Tuple<int, int>>
+        public static readonly Dictionary<string, OrderedPair> CardinalDirections = new Dictionary<string, OrderedPair>
         {
-            { "North", new Tuple<int, int>(0, 1) },
-            { "Northeast", new Tuple<int, int>(1, 1) },
-            { "East", new Tuple<int, int>(1, 0) },
-            { "Southeast", new Tuple<int, int>(1, -1) },
-            { "South", new Tuple<int, int>(0, -1) },
-            { "Southwest", new Tuple<int, int>(-1, -1) },
-            { "West", new Tuple<int, int>(-1, 0) },
-            { "Northwest", new Tuple<int, int>(-1, 1) }
+            { "North", new OrderedPair { X = 0, Y = 1 } },
+            { "Northeast", new OrderedPair { X = 1, Y = 1 } },
+            { "East", new OrderedPair { X = 1, Y = 0 } },
+            { "Southeast", new OrderedPair { X = 1, Y = -1 } },
+            { "South", new OrderedPair { X = 0, Y = -1 } },
+            { "Southwest", new OrderedPair { X = -1, Y = -1 } },
+            { "West", new OrderedPair { X = -1, Y = 0 } },
+            { "Northwest", new OrderedPair { X = -1, Y = 1 } }
 
         };
 
