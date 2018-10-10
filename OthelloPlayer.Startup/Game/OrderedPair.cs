@@ -13,12 +13,12 @@ namespace OthelloPlayer.Startup.Game
         {
             { Direction.North, new OrderedPair(0, 1) },
             { Direction.NorthEast, new OrderedPair(1, 1) },
-            { Direction.East, new OrderedPair (1, 0) },
-            { Direction.SouthEast, new OrderedPair (1, -1) },
-            { Direction.South, new OrderedPair (0, -1) },
+            { Direction.East, new OrderedPair(1, 0) },
+            { Direction.SouthEast, new OrderedPair(1, -1) },
+            { Direction.South, new OrderedPair(0, -1) },
             { Direction.SouthWest, new OrderedPair (-1, -1) },
-            { Direction.West, new OrderedPair (-1, 0) },
-            { Direction.NorthWest, new OrderedPair (-1, 1) }
+            { Direction.West, new OrderedPair(-1, 0) },
+            { Direction.NorthWest, new OrderedPair(-1, 1) }
 
         };
 
@@ -50,6 +50,12 @@ namespace OthelloPlayer.Startup.Game
             Y = y;
         }
 
+        public OrderedPair(OrderedPair orderedPair)
+        {
+            X = orderedPair.X;
+            Y = orderedPair.Y;
+        }
+
         #endregion
 
         #region Public Methods
@@ -59,12 +65,24 @@ namespace OthelloPlayer.Startup.Game
             return $"( {X}, {Y} )";
         }
 
-        public static OrderedPair operator+(OrderedPair lhs, OrderedPair rhs)
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            var temp = (OrderedPair)obj;
+
+            return X == temp.X && Y == temp.Y;
+        }
+
+        public static OrderedPair operator +(OrderedPair lhs, OrderedPair rhs)
         {
             return new OrderedPair(lhs.X + rhs.X, lhs.Y + rhs.Y);
         }
 
-        public static OrderedPair operator+(OrderedPair lhs, Direction rhs)
+        public static OrderedPair operator +(OrderedPair lhs, Direction rhs)
         {
             return new OrderedPair(lhs.X + Directions[rhs].X, lhs.Y + Directions[rhs].Y);
         }
