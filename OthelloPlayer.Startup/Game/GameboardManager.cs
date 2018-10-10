@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace OthelloPlayer.Startup.Game
 {
@@ -6,14 +7,14 @@ namespace OthelloPlayer.Startup.Game
     {
         #region Private Fields
 
-        private Gameboard _gameboard;
+        private static Gameboard _gameboard;
 
         #endregion
 
         #region Properties
 
         public int Size => _gameboard.Board.GetLength(0);
-
+        
         #endregion
 
         #region Constructor
@@ -88,6 +89,9 @@ namespace OthelloPlayer.Startup.Game
                         $"Position ({x}, {y}) already has value {_gameboard.Board[x, y]}. Value of {Token.Open} is required.");
                 }
 
+                // loop everything
+                //  -> IsValid(x, y)
+
                 // Place token.
                 _gameboard.Board[x, y] = value;
             }
@@ -107,10 +111,74 @@ namespace OthelloPlayer.Startup.Game
 
             gameboard.Board[(size / 2) - 1, size / 2] = Token.White;
             gameboard.Board[size / 2, (size / 2) - 1] = Token.White;
-
+            
             return gameboard;
         }
         
+        private static bool IsValid(int x, int y, Token currentToken)
+        {
+            if (currentToken == Token.Open)
+            {
+                throw new ArgumentException($"Cannot place {currentToken}, must use {Token.White} or {Token.Black}.");
+            }
+            
+            if (_gameboard.Board[x, y] != Token.Open)
+            {
+                return false;
+            }
+            
+            foreach (var direction in Directions.CardinalDirections)
+            {
+                var newX = direction.Value.Item1;
+                var newY = direction.Value.Item2;
+
+                if (newX < Gameboard.MinimumSize - 1 || newX > _gameboard.Board.GetLength(0) - 1)
+                {
+                    // Skip this direction. (Out of bounds)
+                    continue;
+                }
+
+                if (newY < Gameboard.MinimumSize - 1 || newY > _gameboard.Board.GetLength(1) - 1)
+                {
+                    // Skip this direction. (Out of bounds)
+                    continue;
+                }
+
+                if (_gameboard.Board[newX, newY] == Token.Open || _gameboard.Board[newX, newY] == currentToken)
+                {
+                    // Skip this direction. (Spot is open or has same token)
+                    continue;
+                }
+
+                // search down direction
+            }
+        }
+
+        public static bool Search(int x, int y, KeyValuePair<string, Tuple<int, int>> direction, Token currentToken)
+        {
+            if (x < Gameboard.MinimumSize - 1 || x > _gameboard.Board.GetLength(0) - 1)
+            {
+                return false;
+            }
+
+            if (y < Gameboard.MinimumSize - 1 || y > _gameboard.Board.GetLength(1) - 1)
+            {
+                return false;
+            }
+
+            if (_gameboard.Board[x, y] == Token.Open)
+            {
+                return false;
+            }
+
+            if (_gameboard.Board[x, y] == currentToken)
+            {
+                return true;
+            }
+
+            return Search(x + direction.Value.Item1, y + direction.Value.Item2, direction, currentToken);
+        }
+
         #endregion
     }
 }
