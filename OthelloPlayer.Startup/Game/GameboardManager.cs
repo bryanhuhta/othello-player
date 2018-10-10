@@ -15,6 +15,8 @@ namespace OthelloPlayer.Startup.Game
         #region Properties
 
         public int Size => _gameboard.Board.GetLength(0);
+        public bool Finish => ValidWhiteMoves.Count == 0 && ValidBlackMoves.Count == 0;
+
         public List<OrderedPair> ValidWhiteMoves { get; private set; }
         public List<OrderedPair> ValidBlackMoves { get; private set; }
 
@@ -39,7 +41,7 @@ namespace OthelloPlayer.Startup.Game
             ValidBlackMoves = BuildPossibleMovesList(Token.Black);
             ValidWhiteMoves = BuildPossibleMovesList(Token.White);
         }
-
+        
         #endregion
 
         #region Public Methods
@@ -113,6 +115,19 @@ namespace OthelloPlayer.Startup.Game
             return counter;
         }
 
+        public static bool HasOrderedPair(List<OrderedPair> list, OrderedPair orderedPair)
+        {
+            foreach (var item in list)
+            {
+                if (item.Equals(orderedPair))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region Private Methods
@@ -141,6 +156,11 @@ namespace OthelloPlayer.Startup.Game
             foreach (Direction direction in Enum.GetValues(typeof(Direction)))
             {
                 var newOrderedPair = orderedPair + direction;
+
+                if (!_gameboard.IsValidPosition(newOrderedPair))
+                {
+                    continue;
+                }
 
                 if (_gameboard[newOrderedPair] == Token.Open)
                 {
@@ -227,20 +247,7 @@ namespace OthelloPlayer.Startup.Game
 
             return movesList;
         }
-
-        private static bool HasOrderedPair(List<OrderedPair> list, OrderedPair orderedPair)
-        {
-            foreach (var item in list)
-            {
-                if (item.Equals(orderedPair))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
+        
         #endregion
     }
 }
