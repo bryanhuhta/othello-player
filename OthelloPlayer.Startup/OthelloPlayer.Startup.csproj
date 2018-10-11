@@ -54,6 +54,7 @@
     <Compile Include="Game\GameboardManager.cs" />
     <Compile Include="Game\OrderedPair.cs" />
     <Compile Include="Game\Token.cs" />
+    <Compile Include="Globals.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
