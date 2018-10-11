@@ -46,7 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\ISef.cs" />
+    <Compile Include="Core\Search\Minimax.cs" />
+    <Compile Include="Core\Sef\ISef.cs" />
+    <Compile Include="Core\Sef\SimpleSef.cs" />
     <Compile Include="Game\Display\BoardDisplay.cs" />
     <Compile Include="Game\Gameboard.cs" />
     <Compile Include="Game\GameboardManager.cs" />

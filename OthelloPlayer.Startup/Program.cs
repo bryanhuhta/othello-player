@@ -30,6 +30,12 @@ namespace OthelloPlayer.Startup
 
                 // Game loop.
 
+                    // Black
+                        
+
+                    // White
+
+                // End loop.
             }
             catch (Exception e)
             {
