@@ -17,82 +17,83 @@ namespace OthelloPlayer.Startup.Core.Sef
 
         #region Public Methods
 
-        public decimal Evaluate(GameboardManager gameboard, Token token)
+        public decimal Evaluate(GameboardManager manager, Token token)
         {
             return token != Globals.HumanToken
-            ? EdgeWeight(gameboard) + OpenSpaceWeight(gameboard) + CornerWeight(gameboard) + ScoreWeight(gameboard)
-                : (-1) * EdgeWeight(gameboard) + OpenSpaceWeight(gameboard) + CornerWeight(gameboard) + ScoreWeight(gameboard);
+            ? EdgeWeight(manager) + OpenSpaceWeight(manager) + CornerWeight(manager) + ScoreWeight(manager)
+                : (-1) * EdgeWeight(manager) + OpenSpaceWeight(manager) + CornerWeight(manager) + ScoreWeight(manager);
         }
 
         #endregion
 
         #region Private Methods
-        private int EdgeWeight(GameboardManager gameboard)
+
+        private int EdgeWeight(GameboardManager manager)
         {
             int weight = 0;
 
-            for (var x = 1; x < gameboard.Size - 2; x++)
+            for (var x = 1; x < manager.Size - 2; x++)
             {
-                if (gameboard[new OrderedPair(x, 0)] == Globals.ComputerToken)
+                if (manager[new OrderedPair(x, 0)] == Globals.ComputerToken)
                 {
                     weight++;
                 }
-                else if (gameboard[new OrderedPair(x, 0)] == Globals.HumanToken)
+                else if (manager[new OrderedPair(x, 0)] == Globals.HumanToken)
                 {
                     weight--;
                 }
             }
-            for (var x = 1; x < gameboard.Size - 2; x++)
+            for (var x = 1; x < manager.Size - 2; x++)
             {
-                if (gameboard[new OrderedPair(x, 1)] == Globals.ComputerToken)
+                if (manager[new OrderedPair(x, 1)] == Globals.ComputerToken)
                 {
                     weight--;
                 }
-                else if (gameboard[new OrderedPair(x, 1)] == Globals.HumanToken)
+                else if (manager[new OrderedPair(x, 1)] == Globals.HumanToken)
                 {
                     weight++;
                 }
             }
-            for (var x = 1; x < gameboard.Size - 2; x++)
+            for (var x = 1; x < manager.Size - 2; x++)
             {
-                if (gameboard[new OrderedPair(x, gameboard.Size - 2)] == Globals.ComputerToken)
+                if (manager[new OrderedPair(x, manager.Size - 2)] == Globals.ComputerToken)
                 {
                     weight--;
                 }
-                else if (gameboard[new OrderedPair(x, gameboard.Size - 2)] == Globals.HumanToken)
+                else if (manager[new OrderedPair(x, manager.Size - 2)] == Globals.HumanToken)
                 {
                     weight++;
                 }
             }
-            for (var x = 1; x < gameboard.Size - 2; x++)
+            for (var x = 1; x < manager.Size - 2; x++)
             {
-                if (gameboard[new OrderedPair(x, gameboard.Size - 1)] == Globals.ComputerToken)
+                if (manager[new OrderedPair(x, manager.Size - 1)] == Globals.ComputerToken)
                 {
                     weight++;
                 }
-                else if (gameboard[new OrderedPair(x, gameboard.Size - 1)] == Globals.HumanToken)
+                else if (manager[new OrderedPair(x, manager.Size - 1)] == Globals.HumanToken)
                 {
                     weight--;
                 }
             }
-            for (var y = 0; y < gameboard.Size; y++)
+            for (var y = 0; y < manager.Size; y++)
             {
-                if (gameboard[new OrderedPair(0, y)] == Globals.ComputerToken)
+                if (manager[new OrderedPair(0, y)] == Globals.ComputerToken)
                 {
                     weight++;
                 }
-                else if (gameboard[new OrderedPair(0, y)] == Globals.HumanToken)
+                else if (manager[new OrderedPair(0, y)] == Globals.HumanToken)
                 {
                     weight--;
                 }
             }
-            for (var y = 0; y < gameboard.Size; y++)
+            for (var y = 0; y < manager.Size; y++)
             {
-                if (gameboard[new OrderedPair(gameboard.Size - 1, y)] == Globals.ComputerToken)
+                if (manager[new OrderedPair(manager.Size - 1, y)] == Globals.ComputerToken)
                 {
                     weight++;
                 }
-                else if (gameboard[new OrderedPair(gameboard.Size - 1, y)] == Globals.HumanToken)
+                else if (manager[new OrderedPair(manager.Size - 1, y)] == Globals.HumanToken)
                 {
                     weight--;
                 }
@@ -100,20 +101,20 @@ namespace OthelloPlayer.Startup.Core.Sef
             return weight;
         }
 
-        private int OpenSpaceWeight(GameboardManager gameboard)
+        private int OpenSpaceWeight(GameboardManager manager)
         {
             List<OrderedPair> counter = new List<OrderedPair>();
             int weight = 0;
-            for (var x = 0; x < gameboard.Size; x++)
+            for (var x = 0; x < manager.Size; x++)
             {
-                for (var y = 0; y < gameboard.Size; y++)
+                for (var y = 0; y < manager.Size; y++)
                 {
-                    if (gameboard[new OrderedPair(x, y)] == Globals.ComputerToken)
+                    if (manager[new OrderedPair(x, y)] == Globals.ComputerToken)
                     {
                         foreach (Direction direction in Enum.GetValues(typeof(Direction)))
                         {
                             var orderedPair = new OrderedPair(x, y) + direction;
-                            if (gameboard[orderedPair] == Token.Open)
+                            if (manager[orderedPair] == Token.Open)
                             {
                                 if (!GameboardManager.HasOrderedPair(counter, orderedPair))
                                 {
@@ -123,12 +124,12 @@ namespace OthelloPlayer.Startup.Core.Sef
                             }
                         }
                     }
-                    if (gameboard[new OrderedPair(x, y)] == Globals.HumanToken)
+                    if (manager[new OrderedPair(x, y)] == Globals.HumanToken)
                     {
                         foreach (Direction direction in Enum.GetValues(typeof(Direction)))
                         {
                             var orderedPair = new OrderedPair(x, y) + direction;
-                            if (gameboard[orderedPair] == Token.Open)
+                            if (manager[orderedPair] == Token.Open)
                             {
                                 if (!GameboardManager.HasOrderedPair(counter, orderedPair))
                                 {
@@ -143,47 +144,48 @@ namespace OthelloPlayer.Startup.Core.Sef
             return weight;
         }
 
-        private int CornerWeight(GameboardManager gameboard)
+        private int CornerWeight(GameboardManager manager)
         {
-            if (gameboard[new OrderedPair(0, 0)] == Globals.ComputerToken)
+            if (manager[new OrderedPair(0, 0)] == Globals.ComputerToken)
             {
                 BlackWeight += 20;
             }
-            else if (gameboard[new OrderedPair(0, 0)] == Globals.HumanToken)
+            else if (manager[new OrderedPair(0, 0)] == Globals.HumanToken)
             {
                 BlackWeight -= 20;
             }
-            else if (gameboard[new OrderedPair(0, gameboard.Size)] == Globals.ComputerToken)
+            else if (manager[new OrderedPair(0, manager.Size)] == Globals.ComputerToken)
             {
                 BlackWeight += 20;
             }
-            else if (gameboard[new OrderedPair(0, gameboard.Size)] == Globals.HumanToken)
+            else if (manager[new OrderedPair(0, manager.Size)] == Globals.HumanToken)
             {
                 BlackWeight -= 20;
             }
-            else if (gameboard[new OrderedPair(gameboard.Size, 0)] == Globals.ComputerToken)
+            else if (manager[new OrderedPair(manager.Size, 0)] == Globals.ComputerToken)
             {
                 BlackWeight += 20;
             }
-            else if (gameboard[new OrderedPair(gameboard.Size, 0)] == Globals.HumanToken)
+            else if (manager[new OrderedPair(manager.Size, 0)] == Globals.HumanToken)
             {
                 BlackWeight -= 20;
             }
-            else if (gameboard[new OrderedPair(gameboard.Size, gameboard.Size)] == Globals.ComputerToken)
+            else if (manager[new OrderedPair(manager.Size, manager.Size)] == Globals.ComputerToken)
             {
                 BlackWeight += 20;
             }
-            else if (gameboard[new OrderedPair(gameboard.Size, gameboard.Size)] == Globals.HumanToken)
+            else if (manager[new OrderedPair(manager.Size, manager.Size)] == Globals.HumanToken)
             {
                 BlackWeight -= 20;
             }
             return BlackWeight;
         }
 
-        private int ScoreWeight(GameboardManager gameboard)
+        private int ScoreWeight(GameboardManager manager)
         {
-            return gameboard.Score(Globals.ComputerToken) - gameboard.Score(Globals.HumanToken);
+            return manager.Score(Globals.ComputerToken) - manager.Score(Globals.HumanToken);
         }
+
         #endregion
     }
 }
