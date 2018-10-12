@@ -17,20 +17,12 @@ namespace OthelloPlayer.Startup.Game.Display
         public static string DrawBoard(GameboardManager manager, Token nextToken, out Dictionary<char, OrderedPair> letteredMoves)
         {
             var builder = new StringBuilder();
-            char piece = ' ';
+            var piece = ' ';
 
             var counter = 0;
-            var validMoves = new List<OrderedPair>();
             letteredMoves = new Dictionary<char, OrderedPair>();
 
-            if (nextToken == Globals.ComputerToken)
-            {
-                validMoves = manager.ValidComputerMoves;
-            }
-            else
-            {
-                validMoves = manager.ValidHumanMoves;
-            }
+            var validMoves = nextToken == Globals.ComputerToken ? manager.ValidComputerMoves : manager.ValidHumanMoves;
             
             for (var y = manager.Size - 1; y >= 0; --y)
             {
@@ -56,7 +48,6 @@ namespace OthelloPlayer.Startup.Game.Display
                             piece = ' ';
                         }
                     }
-                    
                     else if (token == Token.Black)
                     {
                         piece = 'B';
@@ -64,6 +55,10 @@ namespace OthelloPlayer.Startup.Game.Display
                     else if (token == Token.White)
                     {
                         piece = 'W';
+                    }
+                    else
+                    {
+                        piece = '!';
                     }
 
                     row.Add(piece);

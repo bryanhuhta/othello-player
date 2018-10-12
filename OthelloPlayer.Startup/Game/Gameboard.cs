@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 
 namespace OthelloPlayer.Startup.Game
 {
@@ -37,7 +39,13 @@ namespace OthelloPlayer.Startup.Game
 
             Board = new Token[gameboard.Board.GetLength(0), gameboard.Board.GetLength(1)];
 
-            Array.Copy(gameboard.Board, Board, gameboard.Board.GetLength(0) * gameboard.Board.GetLength(1));
+            for (var x = 0; x < gameboard.Board.GetLength(0); ++x)
+            {
+                for (var y = 0; y < gameboard.Board.GetLength(1); ++y)
+                {
+                    Board[x, y] = gameboard.Board[x, y];
+                }
+            }
         }
 
         #endregion
@@ -52,28 +60,34 @@ namespace OthelloPlayer.Startup.Game
 
         public Token this[int x, int y]
         {
-            get
-            {
-                return Board[x, y];
-            }
+            get => Board[x, y];
 
-            set
-            {
-                Board[x, y] = value;
-            }
+            set => Board[x, y] = value;
         }
 
         public Token this[OrderedPair orderedPair]
         {
-            get
+            get => Board[orderedPair.X, orderedPair.Y];
+
+            set => Board[orderedPair.X, orderedPair.Y] = value;
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            for (var x = 0; x < Board.GetLength(0); ++x)
             {
-                return Board[orderedPair.X, orderedPair.Y];
+                for (var y = 0; y < Board.GetLength(1); ++y)
+                {
+                    builder.Append($"[ {Board[x, y]} ]")
+                        .Append(",");
+                }
+
+                builder.AppendLine();
             }
 
-            set
-            {
-                Board[orderedPair.X, orderedPair.Y] = value;
-            }
+            return builder.ToString();
         }
 
         #endregion

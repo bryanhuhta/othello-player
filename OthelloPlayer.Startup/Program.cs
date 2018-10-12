@@ -2,6 +2,7 @@
 using OthelloPlayer.Startup.Game.Display;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OthelloPlayer.Startup
 {
@@ -13,63 +14,63 @@ namespace OthelloPlayer.Startup
         public static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
-
+            
             try
             {
                 var manager = new GameboardManager(8);
 
                 var possibleMoves = new Dictionary<char, OrderedPair>();
-                var currentTurn = Token.Black;
                 var lastMove = new OrderedPair();
+                var currentTurn = Token.Black;
 
                 while (!manager.Finish)
                 {
                     if (currentTurn == Globals.ComputerToken && manager.ValidComputerMoves.Count != 0)
                     {
-                        // Computer Move
-                        
-                        Console.WriteLine($"Computer Move\tLast Move: {lastMove}\tPossible Moves: {manager.ValidComputerMoves.Count}");
+                        Console.WriteLine($"Computer Turn\tLast Move: {lastMove}");
                         Console.WriteLine(BoardDisplay.DrawBoard(manager, currentTurn, out possibleMoves));
 
                         lastMove = GetMove(possibleMoves);
+
                         manager[lastMove] = currentTurn;
                     }
-                    else if (currentTurn == Globals.HumanToken && manager.ValidHumanMoves.Count != 0)
+
+                    if (currentTurn == Globals.HumanToken && manager.ValidHumanMoves.Count != 0)
                     {
-                        // Human Move
-                        
-                        Console.WriteLine($"Human Move\tLast Move: {lastMove}\tPossible Moves: {manager.ValidHumanMoves.Count}");
+                        Console.WriteLine($"Human Turn\tLast Move: {lastMove}");
                         Console.WriteLine(BoardDisplay.DrawBoard(manager, currentTurn, out possibleMoves));
 
                         lastMove = GetMove(possibleMoves);
+
                         manager[lastMove] = currentTurn;
                     }
 
                     currentTurn = SwapTokens(currentTurn);
-
                     Console.Clear();
                 }
 
-                Console.WriteLine(BoardDisplay.DrawBoard(manager, currentTurn, out possibleMoves));
-
+                // Score board.
                 var blackScore = manager.Score(Token.Black);
                 var whiteScore = manager.Score(Token.White);
+
+                Console.WriteLine(BoardDisplay.DrawBoard(manager, currentTurn, out possibleMoves));
 
                 Console.WriteLine($"Black Score: {blackScore}");
                 Console.WriteLine($"White Score: {whiteScore}");
 
                 if (blackScore > whiteScore)
                 {
-                    Console.WriteLine("Black wins!");
+                    Console.WriteLine("Black Wins!");
                 }
                 else if (whiteScore > blackScore)
                 {
-                    Console.WriteLine("White wins!");
+                    Console.WriteLine("White Wins!");
                 }
                 else
                 {
                     Console.WriteLine("Draw!");
                 }
+
             }
             catch (Exception e)
             {

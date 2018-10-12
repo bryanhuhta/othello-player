@@ -8,7 +8,10 @@ namespace OthelloPlayer.Startup.Game
     {
         #region Private Fields
 
-        private static Gameboard _gameboard;
+        private Gameboard _gameboard;
+
+        private static readonly log4net.ILog Logger =
+            log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         #endregion
 
@@ -38,10 +41,27 @@ namespace OthelloPlayer.Startup.Game
 
             _gameboard = InitGameboard(size);
 
-            ValidComputerMoves = BuildPossibleMovesList(Globals.ComputerToken);
-            ValidHumanMoves = BuildPossibleMovesList(Globals.HumanToken);
+            ValidComputerMoves = BuildPossibleMovesList(_gameboard, Globals.ComputerToken);
+            ValidHumanMoves = BuildPossibleMovesList(_gameboard, Globals.HumanToken);
         }
-        
+
+        public GameboardManager(GameboardManager manager)
+        {
+            _gameboard = manager.GetGameboardCopy();
+            
+            ValidComputerMoves = new List<OrderedPair>(manager.ValidComputerMoves.Count);
+            manager.ValidComputerMoves.ForEach((move) =>
+            {
+                ValidComputerMoves.Add(new OrderedPair(move));
+            });
+
+            ValidHumanMoves = new List<OrderedPair>(manager.ValidHumanMoves.Count);
+            manager.ValidHumanMoves.ForEach((move) =>
+            {
+                ValidHumanMoves.Add(new OrderedPair(move));
+            });
+        }
+
         #endregion
 
         #region Public Methods
@@ -82,7 +102,7 @@ namespace OthelloPlayer.Startup.Game
                 }
 
                 // Check if this is a valid move (Human).
-                else if (value == Globals.HumanToken && !HasOrderedPair(ValidHumanMoves, orderedPair))
+                if (value == Globals.HumanToken && !HasOrderedPair(ValidHumanMoves, orderedPair))
                 {
                     throw new ArgumentException($"{orderedPair} is not a valid move for {value}.");
                 }
@@ -91,14 +111,14 @@ namespace OthelloPlayer.Startup.Game
                 _gameboard[orderedPair] = value;
 
                 // 2. Capture pieces.
-                FlipTokens(orderedPair, value);
+                FlipTokens(_gameboard, orderedPair, value);
 
                 // Re-build 'moves' lists.
-                ValidComputerMoves = BuildPossibleMovesList(Globals.ComputerToken);
-                ValidHumanMoves = BuildPossibleMovesList(Globals.HumanToken);
+                ValidComputerMoves = BuildPossibleMovesList(_gameboard, Globals.ComputerToken);
+                ValidHumanMoves = BuildPossibleMovesList(_gameboard, Globals.HumanToken);
             }
         }
-
+        
         public int Score(Token token)
         {
             var counter = 0;
@@ -115,6 +135,11 @@ namespace OthelloPlayer.Startup.Game
             return counter;
         }
 
+        public Gameboard GetGameboardCopy()
+        {
+            return new Gameboard(_gameboard);
+        }
+
         public static bool HasOrderedPair(List<OrderedPair> list, OrderedPair orderedPair)
         {
             foreach (var item in list)
@@ -127,7 +152,7 @@ namespace OthelloPlayer.Startup.Game
 
             return false;
         }
-
+        
         #endregion
 
         #region Private Methods
@@ -146,7 +171,7 @@ namespace OthelloPlayer.Startup.Game
             return gameboard;
         }
 
-        private static bool IsValid(OrderedPair orderedPair, Token currentToken)
+        private static bool IsValid(Gameboard gameboard, OrderedPair orderedPair, Token currentToken)
         {
             if (currentToken == Token.Open)
             {
@@ -157,24 +182,24 @@ namespace OthelloPlayer.Startup.Game
             {
                 var newOrderedPair = orderedPair + direction;
 
-                if (!_gameboard.IsValidPosition(newOrderedPair))
+                if (!gameboard.IsValidPosition(newOrderedPair))
                 {
                     continue;
                 }
 
-                if (_gameboard[newOrderedPair] == Token.Open)
+                if (gameboard[newOrderedPair] == Token.Open)
                 {
                     // Go to next direction. (Open token)
                     continue;
                 }
 
-                if (_gameboard[newOrderedPair] == currentToken)
+                if (gameboard[newOrderedPair] == currentToken)
                 {
                     // Go to next direction. (Same token)
                     continue;
                 }
 
-                if (Search(newOrderedPair, direction, currentToken))
+                if (Search(gameboard, newOrderedPair, direction, currentToken))
                 {
                     // There exists a move that can capture opponent pieces.
                     return true;
@@ -185,45 +210,48 @@ namespace OthelloPlayer.Startup.Game
             return false;
         }
 
-        private static bool Search(OrderedPair orderedPair, Direction direction, Token currentToken)
+        private static bool Search(Gameboard gameboard, OrderedPair orderedPair, Direction direction, Token currentToken)
         {
-            if (!_gameboard.IsValidPosition(orderedPair))
+            while (true)
             {
-                return false;
-            }
+                if (!gameboard.IsValidPosition(orderedPair))
+                {
+                    return false;
+                }
 
-            if (_gameboard[orderedPair] == Token.Open)
-            {
-                return false;
-            }
+                if (gameboard[orderedPair] == Token.Open)
+                {
+                    return false;
+                }
 
-            if (_gameboard[orderedPair] == currentToken)
-            {
-                return true;
-            }
+                if (gameboard[orderedPair] == currentToken)
+                {
+                    return true;
+                }
 
-            return Search(orderedPair + direction, direction, currentToken);
+                orderedPair = orderedPair + direction;
+            }
         }
 
-        private static void FlipTokens(OrderedPair orderedPair, Token currentToken)
+        private static void FlipTokens(Gameboard gameboard, OrderedPair orderedPair, Token currentToken)
         {
             foreach (Direction direction in Enum.GetValues(typeof(Direction)))
             {
-                if (!Search(orderedPair + direction, direction, currentToken))
+                if (!Search(gameboard, orderedPair + direction, direction, currentToken))
                 {
                     continue;
                 }
 
                 var temp = new OrderedPair(orderedPair + direction);
-                while (_gameboard[temp] != currentToken)
+                while (gameboard[temp] != currentToken)
                 {
-                    _gameboard[temp] = currentToken;
+                    gameboard[temp] = currentToken;
                     temp = temp + direction;
                 }
             }
         }
 
-        private static List<OrderedPair> BuildPossibleMovesList(Token token)
+        private static List<OrderedPair> BuildPossibleMovesList(Gameboard gameboard, Token token)
         {
             if (token == Token.Open)
             {
@@ -232,18 +260,18 @@ namespace OthelloPlayer.Startup.Game
 
             var movesList = new List<OrderedPair>();
 
-            for (var x = 0; x < _gameboard.Board.GetLength(0); ++x)
+            for (var x = 0; x < gameboard.Board.GetLength(0); ++x)
             {
-                for (var y = 0; y < _gameboard.Board.GetLength(1); ++y)
+                for (var y = 0; y < gameboard.Board.GetLength(1); ++y)
                 {
                     var orderPair = new OrderedPair(x, y);
 
-                    if (_gameboard[orderPair] != Token.Open)
+                    if (gameboard[orderPair] != Token.Open)
                     {
                         continue;
                     }
 
-                    if (IsValid(orderPair, token))
+                    if (IsValid(gameboard, orderPair, token))
                     {
                         movesList.Add(orderPair);
                     }
