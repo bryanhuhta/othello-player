@@ -3,6 +3,8 @@ using OthelloPlayer.Startup.Game.Display;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OthelloPlayer.Startup.Core.Search;
+using OthelloPlayer.Startup.Core.Sef;
 
 namespace OthelloPlayer.Startup
 {
@@ -18,6 +20,7 @@ namespace OthelloPlayer.Startup
             try
             {
                 var manager = new GameboardManager(8);
+                var minimax = new Minimax(new SimpleSef(), maxDepth: 2);
 
                 var possibleMoves = new Dictionary<char, OrderedPair>();
                 var lastMove = new OrderedPair();
@@ -27,12 +30,35 @@ namespace OthelloPlayer.Startup
                 {
                     if (currentTurn == Globals.ComputerToken && manager.ValidComputerMoves.Count != 0)
                     {
-                        Console.WriteLine($"Computer Turn\tLast Move: {lastMove}");
-                        Console.WriteLine(BoardDisplay.DrawBoard(manager, currentTurn, out possibleMoves));
+                        var movesByWeight = new Dictionary<OrderedPair, decimal>();
+                        var maxWeight = decimal.MinValue;
 
-                        lastMove = GetMove(possibleMoves);
+                        foreach (var move in manager.ValidComputerMoves)
+                        {
+                            // Copy the gameboard.
+                            var searchManager = new GameboardManager(manager);
 
-                        manager[lastMove] = currentTurn;
+                            // Perform this move.
+                            searchManager[move] = Globals.ComputerToken;
+                            Logger.Debug(BoardDisplay.DrawBoard(searchManager, currentTurn, out possibleMoves));
+
+                            // Search this tree.
+                            var result = minimax.Search(searchManager, Globals.HumanToken, 0);
+
+                            movesByWeight.Add(move, result);
+                        }
+
+                        foreach (var move in movesByWeight)
+                        {
+                            if (move.Value > maxWeight)
+                            {
+                                maxWeight = move.Value;
+                                lastMove = move.Key;
+                            }
+                        }
+
+                        // Make the move.
+                        manager[lastMove] = Globals.ComputerToken;
                     }
 
                     if (currentTurn == Globals.HumanToken && manager.ValidHumanMoves.Count != 0)
@@ -42,7 +68,7 @@ namespace OthelloPlayer.Startup
 
                         lastMove = GetMove(possibleMoves);
 
-                        manager[lastMove] = currentTurn;
+                        manager[lastMove] = Globals.HumanToken;
                     }
 
                     currentTurn = SwapTokens(currentTurn);

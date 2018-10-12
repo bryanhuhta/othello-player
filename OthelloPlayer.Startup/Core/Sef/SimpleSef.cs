@@ -8,7 +8,6 @@ namespace OthelloPlayer.Startup.Core.Sef
     public class SimpleSef : ISef
     {
         #region Properties
-        int weight = 0;
 
         public int BlackWeight { get; private set; }
         public int WhiteWeight { get; private set; }
@@ -30,7 +29,7 @@ namespace OthelloPlayer.Startup.Core.Sef
 
         private int EdgeWeight(GameboardManager manager)
         {
-            int weight = 0;
+            var weight = 0;
 
             for (var x = 1; x < manager.Size - 2; x++)
             {
@@ -103,8 +102,9 @@ namespace OthelloPlayer.Startup.Core.Sef
 
         private int OpenSpaceWeight(GameboardManager manager)
         {
-            List<OrderedPair> counter = new List<OrderedPair>();
-            int weight = 0;
+            var counter = new List<OrderedPair>();
+            var weight = 0;
+
             for (var x = 0; x < manager.Size; x++)
             {
                 for (var y = 0; y < manager.Size; y++)
@@ -114,13 +114,20 @@ namespace OthelloPlayer.Startup.Core.Sef
                         foreach (Direction direction in Enum.GetValues(typeof(Direction)))
                         {
                             var orderedPair = new OrderedPair(x, y) + direction;
-                            if (manager[orderedPair] == Token.Open)
+
+                            try
                             {
-                                if (!GameboardManager.HasOrderedPair(counter, orderedPair))
+                                if (manager[orderedPair] == Token.Open)
                                 {
-                                    counter.Add(orderedPair);
-                                    weight -= 1;
+                                    if (!GameboardManager.HasOrderedPair(counter, orderedPair))
+                                    {
+                                        counter.Add(orderedPair);
+                                        weight -= 1;
+                                    }
                                 }
+                            }
+                            catch (ArgumentOutOfRangeException)
+                            {
                             }
                         }
                     }
@@ -129,13 +136,20 @@ namespace OthelloPlayer.Startup.Core.Sef
                         foreach (Direction direction in Enum.GetValues(typeof(Direction)))
                         {
                             var orderedPair = new OrderedPair(x, y) + direction;
-                            if (manager[orderedPair] == Token.Open)
+
+                            try
                             {
-                                if (!GameboardManager.HasOrderedPair(counter, orderedPair))
+                                if (manager[orderedPair] == Token.Open)
                                 {
-                                    counter.Add(orderedPair);
-                                    weight += 1;
+                                    if (!GameboardManager.HasOrderedPair(counter, orderedPair))
+                                    {
+                                        counter.Add(orderedPair);
+                                        weight += 1;
+                                    }
                                 }
+                            }
+                            catch (ArgumentOutOfRangeException)
+                            {
                             }
                         }
                     }
@@ -154,27 +168,27 @@ namespace OthelloPlayer.Startup.Core.Sef
             {
                 BlackWeight -= 20;
             }
-            else if (manager[new OrderedPair(0, manager.Size)] == Globals.ComputerToken)
+            else if (manager[new OrderedPair(0, manager.Size - 1)] == Globals.ComputerToken)
             {
                 BlackWeight += 20;
             }
-            else if (manager[new OrderedPair(0, manager.Size)] == Globals.HumanToken)
+            else if (manager[new OrderedPair(0, manager.Size - 1)] == Globals.HumanToken)
             {
                 BlackWeight -= 20;
             }
-            else if (manager[new OrderedPair(manager.Size, 0)] == Globals.ComputerToken)
+            else if (manager[new OrderedPair(manager.Size - 1, 0)] == Globals.ComputerToken)
             {
                 BlackWeight += 20;
             }
-            else if (manager[new OrderedPair(manager.Size, 0)] == Globals.HumanToken)
+            else if (manager[new OrderedPair(manager.Size - 1, 0)] == Globals.HumanToken)
             {
                 BlackWeight -= 20;
             }
-            else if (manager[new OrderedPair(manager.Size, manager.Size)] == Globals.ComputerToken)
+            else if (manager[new OrderedPair(manager.Size - 1, manager.Size - 1)] == Globals.ComputerToken)
             {
                 BlackWeight += 20;
             }
-            else if (manager[new OrderedPair(manager.Size, manager.Size)] == Globals.HumanToken)
+            else if (manager[new OrderedPair(manager.Size - 1, manager.Size - 1)] == Globals.HumanToken)
             {
                 BlackWeight -= 20;
             }

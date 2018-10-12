@@ -12,20 +12,27 @@ namespace OthelloPlayer.Startup.Core.Search
 
         #endregion
 
+        #region Properties
+
+        public int MaxDepth { get; }
+
+        #endregion
+
         #region Constructor
 
-        public Minimax(ISef sef)
+        public Minimax(ISef sef, int maxDepth)
         {
             _sef = sef ?? throw new ArgumentNullException($"{nameof(sef)} is null.");
+            MaxDepth = maxDepth > 1 ? maxDepth : throw new ArgumentException($"{nameof(maxDepth)} is {maxDepth}, but must be greater than 1.");
         }
 
         #endregion
 
         #region Public Methods
 
-        public decimal Search(GameboardManager manager, Token token, int currentDepth, int maxDepth)
+        public decimal Search(GameboardManager manager, Token token, int currentDepth)
         {
-            if (currentDepth == maxDepth)
+            if (currentDepth == MaxDepth)
             {
                 return _sef.Evaluate(manager, token);
             }
@@ -36,12 +43,13 @@ namespace OthelloPlayer.Startup.Core.Search
             if (token == Globals.ComputerToken)
             {
                 value = decimal.MinValue;
-
+                
                 foreach (var move in manager.ValidComputerMoves)
                 {
-                    manager[move] = token;
-                    var evaluation = Search(manager, Globals.HumanToken, currentDepth + 1, maxDepth);
+                    var tempManager = new GameboardManager(manager);
+                    tempManager[move] = token;
 
+                    var evaluation = Search(tempManager, Globals.HumanToken, currentDepth + 1);
                     if (evaluation > value)
                     {
                         value = evaluation;
@@ -55,9 +63,10 @@ namespace OthelloPlayer.Startup.Core.Search
 
                 foreach(var move in manager.ValidHumanMoves)
                 {
-                    manager[move] = token;
-                    var evaluation = Search(manager, Globals.ComputerToken, currentDepth + 1, maxDepth);
+                    var tempManager = new GameboardManager(manager);
+                    tempManager[move] = token;
 
+                    var evaluation = Search(tempManager, Globals.ComputerToken, currentDepth + 1);
                     if (evaluation < value)
                     {
                         value = evaluation;
