@@ -12,7 +12,7 @@ namespace OthelloPlayer.Startup.Core.Sef
 
         #region Public Methods
 
-        public decimal Evaluate(Gameboard gameboard, Token token)
+        public decimal Evaluate(GameboardManager manager, Token token)
         {
             throw new System.NotImplementedException();
         }

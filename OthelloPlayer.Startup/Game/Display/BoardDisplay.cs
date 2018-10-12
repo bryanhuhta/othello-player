@@ -23,13 +23,13 @@ namespace OthelloPlayer.Startup.Game.Display
             var validMoves = new List<OrderedPair>();
             letteredMoves = new Dictionary<char, OrderedPair>();
 
-            if (nextToken == Token.Black)
+            if (nextToken == Globals.ComputerToken)
             {
-                validMoves = manager.ValidBlackMoves;
+                validMoves = manager.ValidComputerMoves;
             }
             else
             {
-                validMoves = manager.ValidWhiteMoves;
+                validMoves = manager.ValidHumanMoves;
             }
             
             for (var y = manager.Size - 1; y >= 0; --y)

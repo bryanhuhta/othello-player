@@ -15,10 +15,10 @@ namespace OthelloPlayer.Startup.Game
         #region Properties
 
         public int Size => _gameboard.Board.GetLength(0);
-        public bool Finish => ValidWhiteMoves.Count == 0 && ValidBlackMoves.Count == 0;
+        public bool Finish => ValidHumanMoves.Count == 0 && ValidComputerMoves.Count == 0;
 
-        public List<OrderedPair> ValidWhiteMoves { get; private set; }
-        public List<OrderedPair> ValidBlackMoves { get; private set; }
+        public List<OrderedPair> ValidHumanMoves { get; private set; }
+        public List<OrderedPair> ValidComputerMoves { get; private set; }
 
         #endregion
 
@@ -38,8 +38,8 @@ namespace OthelloPlayer.Startup.Game
 
             _gameboard = InitGameboard(size);
 
-            ValidBlackMoves = BuildPossibleMovesList(Token.Black);
-            ValidWhiteMoves = BuildPossibleMovesList(Token.White);
+            ValidComputerMoves = BuildPossibleMovesList(Globals.ComputerToken);
+            ValidHumanMoves = BuildPossibleMovesList(Globals.HumanToken);
         }
         
         #endregion
@@ -75,14 +75,14 @@ namespace OthelloPlayer.Startup.Game
                     throw new ArgumentException($"Cannot place {value}, must use {Token.White} or {Token.Black}.");
                 }
 
-                // Check if this is a valid move (Black).
-                if (value == Token.Black && !HasOrderedPair(ValidBlackMoves, orderedPair))
+                // Check if this is a valid move (Computer).
+                if (value == Globals.ComputerToken && !HasOrderedPair(ValidComputerMoves, orderedPair))
                 {
                     throw new ArgumentException($"{orderedPair} is not a valid move for {value}.");
                 }
 
-                // Check if this is a valid move (White).
-                else if (value == Token.White && !HasOrderedPair(ValidWhiteMoves, orderedPair))
+                // Check if this is a valid move (Human).
+                else if (value == Globals.HumanToken && !HasOrderedPair(ValidHumanMoves, orderedPair))
                 {
                     throw new ArgumentException($"{orderedPair} is not a valid move for {value}.");
                 }
@@ -94,8 +94,8 @@ namespace OthelloPlayer.Startup.Game
                 FlipTokens(orderedPair, value);
 
                 // Re-build 'moves' lists.
-                ValidBlackMoves = BuildPossibleMovesList(Token.Black);
-                ValidWhiteMoves = BuildPossibleMovesList(Token.White);
+                ValidComputerMoves = BuildPossibleMovesList(Globals.ComputerToken);
+                ValidHumanMoves = BuildPossibleMovesList(Globals.HumanToken);
             }
         }
 
@@ -237,6 +237,11 @@ namespace OthelloPlayer.Startup.Game
                 for (var y = 0; y < _gameboard.Board.GetLength(1); ++y)
                 {
                     var orderPair = new OrderedPair(x, y);
+
+                    if (_gameboard[orderPair] != Token.Open)
+                    {
+                        continue;
+                    }
 
                     if (IsValid(orderPair, token))
                     {
