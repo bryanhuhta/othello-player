@@ -14,83 +14,86 @@ namespace OthelloPlayer.Startup.Game.Display
 
         #region Public Methods
 
-        public static string DrawBoard(GameboardManager manager, Token nextToken, out Dictionary<char, OrderedPair> letteredMoves)
+        public static Dictionary<char, OrderedPair> DrawBoard(GameboardManager manager, Token nextToken)
         {
-            var builder = new StringBuilder();
             var piece = ' ';
 
             var counter = 0;
-            letteredMoves = new Dictionary<char, OrderedPair>();
+            var letteredMoves = new Dictionary<char, OrderedPair>();
 
-            var validMoves = nextToken == Globals.ComputerToken ? manager.ValidComputerMoves : manager.ValidHumanMoves;
-            
+            var validMoves = (nextToken == Globals.ComputerToken) ? manager.ValidComputerMoves : manager.ValidHumanMoves;
+
             for (var y = manager.Size - 1; y >= 0; --y)
             {
-                builder.Append(DrawRowDivider(manager.Size));
-
                 var row = new List<char>(manager.Size);
 
                 for (var x = 0; x < manager.Size; ++x)
                 {
-                    var currentPosition = new OrderedPair(x, y);
-                    var token = manager[currentPosition];
+                    var orderedPair = new OrderedPair(x, y);
 
-                    if (token == Token.Open)
+                    switch (manager[orderedPair])
                     {
-                        if (GameboardManager.HasOrderedPair(validMoves, currentPosition))
-                        {
-                            piece = Moves[counter];
-                            letteredMoves.Add(Moves[counter], currentPosition);
-                            ++counter;
-                        }
-                        else
-                        {
-                            piece = ' ';
-                        }
-                    }
-                    else if (token == Token.Black)
-                    {
-                        piece = 'B';
-                    }
-                    else if (token == Token.White)
-                    {
-                        piece = 'W';
-                    }
-                    else
-                    {
-                        piece = '!';
-                    }
+                        case Token.Black:
+                            row.Add('B');
+                            break;
+                        case Token.White:
+                            row.Add('W');
+                            break;
+                        case Token.Open:
+                            if (GameboardManager.HasOrderedPair(validMoves, orderedPair))
+                            {
+                                row.Add(Moves[counter]);
+                                letteredMoves.Add(Moves[counter], orderedPair);
 
-                    row.Add(piece);
+                                ++counter;
+                            }
+                            else
+                            {
+                                row.Add(' ');
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
-                builder.Append(DrawRow(row));
+                DrawRowDivider(manager.Size);
+                DrawRow(row);
             }
 
-            builder.Append(DrawRowDivider(manager.Size));
-            
-            return builder.ToString();
+            DrawRowDivider(manager.Size);
+
+            return letteredMoves;
         }
         
         #endregion
 
         #region Private Methods
 
-        private static string DrawRow(List<char> row)
+        private static void DrawRow(List<char> row)
         {
-            var builder = new StringBuilder();
-
-            for (var i = 0; i < row.Count; ++i)
+            foreach (var cell in row)
             {
-                builder.Append($"| {row[i]} ");
+                WriteColor("| ", ConsoleColor.Gray, ConsoleColor.Green);
+
+                switch (cell)
+                {
+                    case 'B':
+                        WriteColor("O ", ConsoleColor.Black, ConsoleColor.Green);
+                        break;
+                    case 'W':
+                        WriteColor("O ", ConsoleColor.White, ConsoleColor.Green);
+                        break;
+                    default:
+                        WriteColor($"{cell} ", ConsoleColor.Red, ConsoleColor.Green);
+                        break;
+                }
             }
 
-            builder.Append($"|{Environment.NewLine}");
-
-            return builder.ToString();
+            WriteColor($"|{Environment.NewLine}", ConsoleColor.Gray, ConsoleColor.Green);
         }
 
-        private static string DrawRowDivider(int size)
+        private static void DrawRowDivider(int size)
         {
             var builder = new StringBuilder();
 
@@ -99,9 +102,27 @@ namespace OthelloPlayer.Startup.Game.Display
                 builder.Append('-');
             }
 
-            builder.Append($"{Environment.NewLine}");
+            WriteLineColor(builder.ToString(), ConsoleColor.Gray, ConsoleColor.Green);
+        }
 
-            return builder.ToString();
+        private static void WriteColor(string text, ConsoleColor foreground, ConsoleColor background)
+        {
+            Console.ForegroundColor = foreground;
+            Console.BackgroundColor = background;
+            
+            Console.Write(text);
+
+            Console.ResetColor();
+        }
+
+        private static void WriteLineColor(string text, ConsoleColor foreground, ConsoleColor background)
+        {
+            Console.ForegroundColor = foreground;
+            Console.BackgroundColor = background;
+
+            Console.WriteLine(text);
+
+            Console.ResetColor();
         }
 
         #endregion

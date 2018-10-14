@@ -40,7 +40,6 @@ namespace OthelloPlayer.Startup
 
                             // Perform this move.
                             searchManager[move] = Globals.ComputerToken;
-                            Logger.Debug(BoardDisplay.DrawBoard(searchManager, currentTurn, out possibleMoves));
 
                             // Search this tree.
                             var result = minimax.Search(searchManager, Globals.HumanToken, 0);
@@ -64,7 +63,7 @@ namespace OthelloPlayer.Startup
                     if (currentTurn == Globals.HumanToken && manager.ValidHumanMoves.Count != 0)
                     {
                         Console.WriteLine($"Human Turn\tLast Move: {lastMove}");
-                        Console.WriteLine(BoardDisplay.DrawBoard(manager, currentTurn, out possibleMoves));
+                        possibleMoves = BoardDisplay.DrawBoard(manager, currentTurn);
 
                         lastMove = GetMove(possibleMoves);
 
@@ -79,7 +78,7 @@ namespace OthelloPlayer.Startup
                 var blackScore = manager.Score(Token.Black);
                 var whiteScore = manager.Score(Token.White);
 
-                Console.WriteLine(BoardDisplay.DrawBoard(manager, currentTurn, out possibleMoves));
+                BoardDisplay.DrawBoard(manager, currentTurn);
 
                 Console.WriteLine($"Black Score: {blackScore}");
                 Console.WriteLine($"White Score: {whiteScore}");
