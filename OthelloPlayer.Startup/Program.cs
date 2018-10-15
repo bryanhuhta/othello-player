@@ -2,9 +2,9 @@
 using OthelloPlayer.Startup.Game.Display;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using OthelloPlayer.Startup.Core.Search;
 using OthelloPlayer.Startup.Core.Sef;
+using System.Linq;
 
 namespace OthelloPlayer.Startup
 {
@@ -23,7 +23,7 @@ namespace OthelloPlayer.Startup
                 var minimax = new Minimax(new SimpleSef(), maxDepth: 2);
 
                 var possibleMoves = new Dictionary<char, OrderedPair>();
-                var lastMove = new OrderedPair();
+                var lastMove = new OrderedPair(-1, -1);
                 var currentTurn = Token.Black;
 
                 while (!manager.Finish)
@@ -31,7 +31,6 @@ namespace OthelloPlayer.Startup
                     if (currentTurn == Globals.ComputerToken && manager.ValidComputerMoves.Count != 0)
                     {
                         var movesByWeight = new Dictionary<OrderedPair, decimal>();
-                        var maxWeight = decimal.MinValue;
 
                         foreach (var move in manager.ValidComputerMoves)
                         {
@@ -47,6 +46,9 @@ namespace OthelloPlayer.Startup
                             movesByWeight.Add(move, result);
                         }
 
+                        lastMove = manager.ValidComputerMoves.First();
+                        var maxWeight = movesByWeight[lastMove];
+
                         foreach (var move in movesByWeight)
                         {
                             if (move.Value > maxWeight)
@@ -55,6 +57,8 @@ namespace OthelloPlayer.Startup
                                 lastMove = move.Key;
                             }
                         }
+
+                        Logger.Debug($"Computer Selected: {lastMove} out of [ {manager.ComputerMovesToString()} ]");
 
                         // Make the move.
                         manager[lastMove] = Globals.ComputerToken;
@@ -70,9 +74,11 @@ namespace OthelloPlayer.Startup
                         manager[lastMove] = Globals.HumanToken;
                     }
                     
-                    Logger.Debug($"Move: ({currentTurn})\t{lastMove}\t{manager.Score(Token.Black)} - {manager.Score(Token.White)} - {manager.Score(Token.Open)}\n{manager}");
+                    Logger.Debug($"Move: ({currentTurn})\t{lastMove}\t{manager.Score(Token.Black)} - {manager.Score(Token.White)} - {manager.Score(Token.Open)}" +
+                        $"{Environment.NewLine}{manager}");
 
                     currentTurn = SwapTokens(currentTurn);
+                    lastMove = new OrderedPair(-1, -1); 
                     Console.Clear();
                 }
 
@@ -102,10 +108,8 @@ namespace OthelloPlayer.Startup
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                Logger.Fatal(e);
             }
-
-            Console.WriteLine("Press any key...");
-            Console.ReadKey();
         }
 
         private static OrderedPair GetMove(Dictionary<char, OrderedPair> pairs)
