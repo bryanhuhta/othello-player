@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using static OthelloPlayer.Startup.Game.OrderedPair;
 
 namespace OthelloPlayer.Startup.Game
@@ -138,6 +139,49 @@ namespace OthelloPlayer.Startup.Game
         public Gameboard GetGameboardCopy()
         {
             return new Gameboard(_gameboard);
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendLine("Valid Computer Moves:")
+                .Append("\t")
+                .Append(ComputerMovesToString());
+            builder.AppendLine();
+
+            builder.AppendLine("Valid Human Moves:")
+                .Append("\t")
+                .Append(HumanMovesToString());
+            builder.AppendLine();
+
+            builder.AppendLine(_gameboard.ToString());
+
+            return builder.ToString();
+        }
+
+        public string ComputerMovesToString()
+        {
+            var builder = new StringBuilder();
+
+            ValidComputerMoves.ForEach((x) =>
+            {
+                builder.Append($"{x}, ");
+            });
+
+            return builder.ToString();
+        }
+
+        public string HumanMovesToString()
+        {
+            var builder = new StringBuilder();
+
+            ValidHumanMoves.ForEach((x) =>
+            {
+                builder.Append($"{x}, ");
+            });
+
+            return builder.ToString();
         }
 
         public static bool HasOrderedPair(List<OrderedPair> list, OrderedPair orderedPair)
