@@ -46,9 +46,11 @@ namespace OthelloPlayer.Startup
                             movesByWeight.Add(move, result);
                         }
 
+                        // Select first possible move.
                         lastMove = manager.ValidComputerMoves.First();
                         var maxWeight = movesByWeight[lastMove];
 
+                        // Search for any move that may be better.
                         foreach (var move in movesByWeight)
                         {
                             if (move.Value > maxWeight)
