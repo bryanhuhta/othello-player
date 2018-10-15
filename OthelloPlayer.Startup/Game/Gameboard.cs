@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 
 namespace OthelloPlayer.Startup.Game
@@ -76,12 +75,22 @@ namespace OthelloPlayer.Startup.Game
         {
             var builder = new StringBuilder();
 
-            for (var x = 0; x < Board.GetLength(0); ++x)
+            for (var y = Board.GetLength(0) - 1; y >= 0 ; --y)
             {
-                for (var y = 0; y < Board.GetLength(1); ++y)
+                for (var x = 0; x < Board.GetLength(1); ++x)
                 {
-                    builder.Append($"[ {Board[x, y]} ]")
-                        .Append(",");
+                    switch (Board[x, y])
+                    {
+                        case Token.Black:
+                            builder.Append("B");
+                            break;
+                        case Token.White:
+                            builder.Append("W");
+                            break;
+                        case Token.Open:
+                            builder.Append("-");
+                            break;
+                    }
                 }
 
                 builder.AppendLine();

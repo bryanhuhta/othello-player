@@ -69,6 +69,8 @@ namespace OthelloPlayer.Startup
 
                         manager[lastMove] = Globals.HumanToken;
                     }
+                    
+                    Logger.Debug($"Move: ({currentTurn})\t{lastMove}\t{manager.Score(Token.Black)} - {manager.Score(Token.White)} - {manager.Score(Token.Open)}\n{manager}");
 
                     currentTurn = SwapTokens(currentTurn);
                     Console.Clear();

@@ -140,6 +140,11 @@ namespace OthelloPlayer.Startup.Game
             return new Gameboard(_gameboard);
         }
 
+        public override string ToString()
+        {
+            return _gameboard.ToString();
+        }
+
         public static bool HasOrderedPair(List<OrderedPair> list, OrderedPair orderedPair)
         {
             foreach (var item in list)
