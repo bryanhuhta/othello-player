@@ -103,9 +103,6 @@ namespace OthelloPlayer.Startup
             {
                 Console.WriteLine(e);
             }
-
-            Console.WriteLine("Press any key...");
-            Console.ReadKey();
         }
 
         private static OrderedPair GetMove(Dictionary<char, OrderedPair> pairs)
